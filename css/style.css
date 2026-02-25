@@ -137,10 +137,13 @@ h1.glitch {
 .menu-options { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; }
 
 .menu-btn { 
-    background: transparent !important; padding: 12px 25px; 
+    background: transparent !important;
+    color: var(--neon-cyan); /* DODATO: Rešava problem nevidljivog teksta */
+    padding: 12px 25px; 
     font-family: var(--retro-font); font-weight: 700; text-transform: uppercase;
     letter-spacing: 2px; cursor: pointer; border: 2px solid; 
-    transition: 0.3s all; outline: none; -webkit-tap-highlight-color: transparent;
+    transition: 0.3s all;
+    outline: none; -webkit-tap-highlight-color: transparent;
     font-size: clamp(0.7rem, 2vw, 0.9rem);
 }
 
@@ -157,12 +160,11 @@ h1.glitch {
 #overlay.hidden { display: none; }
 
 #overlay h1 { 
-    /* KLJUČNO: Sprečava ispadanje fonta iz ekrana */
-    font-size: clamp(2rem, 10vw, 5rem); 
+    font-size: clamp(2rem, 8vw, 4rem); /* SMANJENO: sa 10vw i 5rem */
+    white-space: nowrap; /* DODATO: Strogo sprečava prelamanje u novi red */
     width: 100%;
     max-width: 100vw;
-    overflow-wrap: break-word;
-    letter-spacing: clamp(2px, 2vw, 10px); 
+    letter-spacing: clamp(2px, 2vw, 8px); /* SMANJENO: Maksimalan razmak */
     margin-bottom: 30px;
     color: var(--neon-magenta);
     text-shadow: 0 0 20px var(--neon-magenta);
@@ -178,16 +180,20 @@ h1.glitch {
         position: absolute;
         inset: 0;
         z-index: 2000;
-        pointer-events: none; /* Ne blokira meni dok nije aktivan */
+        /* OBRISANO: pointer-events: none; i klasa .active ispod */
     }
 
     #touch-controls.active { pointer-events: all; }
 
     .touch-zone {
         position: absolute;
-        /* Opciono: dodaj boju tokom debug-a, npr. rgba(255,255,255,0.05) */
         background: transparent;
         -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Sakrij desktop komande na Game Over ekranu (SPACE / ESC) */
+    .overlay-controls {
+        display: none; 
     }
 
     #touch-up { top: 0; left: 25%; width: 50%; height: 25%; }
@@ -195,6 +201,8 @@ h1.glitch {
     #touch-left { top: 0; left: 0; height: 100%; width: 25%; }
     #touch-right { top: 0; right: 0; height: 100%; width: 25%; }
 }
+
+
 
 /* Rešavanje paddinga za dugmiće na mobilnom */
 .overlay-btns {
