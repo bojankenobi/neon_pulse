@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <title>Neon Pulse - Arcade Core</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="manifest" href="./manifest.json">
+    <link rel="apple-touch-icon" href="./assets/icons/icon-192.png">
+</head>
+<body>
+    <div id="main-menu">
+        <div class="menu-content">
+            <h1 class="glitch" data-text="NEON PULSE">NEON PULSE</h1>
+            
+            <div class="menu-section">
+                <div class="section-label">Select Mode</div>
+                <div class="menu-options">
+                    <button class="menu-btn active" data-players="2">Duel 1vs1</button>
+                    <button class="menu-btn" data-players="4">Squad 1vs3</button>
+                </div>
+            </div>
+
+            <div class="menu-section">
+                <div class="section-label">Difficulty</div>
+                <div class="menu-options">
+                    <button class="menu-btn btn-easy" data-speed="120">Easy</button>
+                    <button class="menu-btn btn-normal active" data-speed="80">Normal</button>
+                    <button class="menu-btn btn-hard" data-speed="50">Hard</button>
+                </div>
+            </div>
+
+            <div class="menu-section" style="margin-top: 50px;">
+                <button id="start-btn" class="menu-btn btn-normal" style="width: 100%; border-style: double; border-width: 4px;">Initialize System</button>
+                <div class="controls-hint">ARROWS TO STEER | SHIFT FOR TURBO</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="ui">
+        <div class="ui-group">
+            <div id="p1-ui" class="score-box">
+                <span class="p1-label">USER:</span> <span id="p1-score">0</span>
+            </div>
+            <div id="p3-ui" class="score-box hidden">
+                <span class="p3-label">CORE_2:</span> <span id="p3-score">0</span>
+            </div>
+        </div>
+    
+        <div class="status-box">
+            <div id="game-status">SYSTEM ACTIVE</div>
+            <div id="fps-counter">FPS: <span id="fps">0</span></div>
+        </div>
+
+        <div class="ui-group">
+            <div id="p4-ui" class="score-box hidden">
+                <span id="p4-score">0</span> :<span class="p4-label">CORE_3</span>
+            </div>
+            <div id="p2-ui" class="score-box">
+                <span id="p2-score">0</span> :<span class="p2-label">CORE_1</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="overlay" class="hidden">
+        <h1 id="overlay-text">CONNECTION LOST</h1>
+    <div class="overlay-controls">
+        <p>PRESS <span class="highlight">SPACE</span> TO RE-SYNC ROUND</p>
+        <p>PRESS <span class="highlight">ESC</span> FOR MAIN MENU</p>
+    </div>
+    <div class="mobile-only overlay-btns">
+        <button id="mobile-restart" class="menu-btn btn-normal">RE-SYNC ROUND</button>
+        <button id="mobile-exit" class="menu-btn btn-hard">MAIN MENU</button>
+    </div>
+    </div>
+    <div id="touch-controls" class="mobile-only">
+    <div class="touch-zone" id="touch-up"></div>
+    <div class="touch-zone" id="touch-down"></div>
+    <div class="touch-zone" id="touch-left"></div>
+    <div class="touch-zone" id="touch-right"></div>
+    </div>
+    <canvas id="game"></canvas>
+
+    <script type="module" src="./js/main.js"></script>
+    <script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js')
+        .then(() => console.log("PWA: Service Worker registrovan"))
+        .catch(err => console.log("PWA: Greška", err));
+    }
+    </script>
+</body>
+</html>

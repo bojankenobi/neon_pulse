@@ -1,0 +1,297 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Share+Tech+Mono&display=swap');
+
+:root {
+    --neon-cyan: #00f2ff;
+    --neon-magenta: #ff2d55;
+    --neon-green: #00ff7f;
+    --bg-dark: #010103;
+    --retro-font: 'Orbitron', sans-serif; 
+    --mono-font: 'Share Tech Mono', monospace; 
+    --electricity-color: rgba(0, 242, 255, 0.05);
+}
+
+/* --- OSNOVA I 3D PERSPEKTIVA --- */
+body, html { 
+    margin: 0; padding: 0; width: 100%; height: 100%; 
+    background-color: #000;
+    background-image: radial-gradient(circle at 50% 50%, #0a1a2f 0%, #000 100%);
+    color: var(--neon-cyan); 
+    font-family: var(--retro-font); 
+    overflow: hidden; 
+    display: flex; align-items: center; justify-content: center;
+    perspective: 1000px;
+    animation: corePulse 8s infinite alternate ease-in-out;
+}
+
+@keyframes corePulse {
+    0% { filter: brightness(1) contrast(1); }
+    100% { filter: brightness(1.3) contrast(1.1); }
+}
+
+/* --- ANIMIRANA POZADINA (VODOVI) --- */
+body::after {
+    content: ""; position: absolute; 
+    width: 400%; height: 400%; 
+    top: -150%; left: -150%;
+    background-image: 
+        linear-gradient(var(--electricity-color) 1px, transparent 1px),
+        linear-gradient(90deg, var(--electricity-color) 1px, transparent 1px);
+    background-size: 60px 60px;
+    transform-origin: center center;
+    transform: rotateX(62deg); 
+    z-index: -1;
+    animation: electricityFlow 20s infinite linear;
+}
+
+/* --- CRT FILTER I MUNJE --- */
+body::before { 
+    content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0; 
+    background: 
+        linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.4) 50%), 
+        linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.03));
+    z-index: 5000; background-size: 100% 4px, 4px 100%;
+    pointer-events: none; opacity: 0.8;
+    animation: lightningStrike 5s infinite;
+}
+
+@keyframes electricityFlow { 0% { transform: rotateX(62deg) translateY(0); } 100% { transform: rotateX(62deg) translateY(60px); } }
+@keyframes lightningStrike { 0%, 95%, 100% { opacity: 0.8; filter: brightness(1); } 96% { opacity: 1; filter: brightness(2); } 97% { opacity: 0.9; } 98% { opacity: 1; } }
+
+/* --- SCOREBOARD --- */
+#ui { 
+    position: absolute; 
+    top: 2%; 
+    left: 50%; 
+    transform: translateX(-50%); 
+    width: 90%; 
+    max-width: 1100px; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+    padding: 0;
+    pointer-events: none;
+    z-index: 1000;
+    text-shadow: 0 0 10px var(--neon-cyan);
+}
+
+.status-box {
+    text-align: center;
+    flex-grow: 1;
+    font-size: 0.9rem;
+    letter-spacing: 3px;
+    font-weight: 700;
+}
+
+#p1-score, #p2-score, #p3-score, #p4-score { 
+    font-size: 2.5rem; 
+    font-weight: 700;
+    min-width: 100px;
+}
+
+.p1-label { color: var(--neon-cyan); text-align: left; } 
+.p2-label { color: var(--neon-magenta); text-shadow: 0 0 10px var(--neon-magenta); text-align: right; } 
+
+/* --- TABLA (RESPONZIVNO SKALIRANJE) --- */
+canvas { 
+    background: rgba(0, 0, 0, 0.9); 
+    border: 2px solid var(--neon-cyan); 
+    box-shadow: 0 0 60px rgba(0, 242, 255, 0.3), inset 0 0 30px rgba(0, 242, 255, 0.15); 
+    image-rendering: pixelated; 
+    
+    /* Na desktopu koristimo visinu, na mobilnom širinu */
+    width: 70vh; 
+    height: 70vh; 
+    max-width: 90vw;
+    max-height: 90vw;
+
+    transform-origin: center center;
+    transform: rotateX(62deg); 
+    transition: transform 0.4s ease-out;
+    z-index: 10;
+}
+
+body.turbo-active canvas,
+body.turbo-active::after {
+    transform: rotateX(65deg);
+}
+
+/* --- MAIN MENU --- */
+#main-menu { 
+    position: absolute; inset: 0;
+    background: #000;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; 
+    z-index: 6000; transition: opacity 0.5s ease; 
+}
+#main-menu.hidden { opacity: 0; pointer-events: none; }
+
+.menu-content { text-align: center; background: transparent; z-index: 6001; width: 100%; }
+
+h1.glitch { 
+    font-size: clamp(2rem, 10vw, 4.5rem); 
+    letter-spacing: 15px; margin-bottom: 40px; font-weight: 700;
+    color: var(--neon-cyan); text-shadow: 0 0 20px var(--neon-cyan);
+    position: relative; animation: neonGlow 2s infinite alternate ease-in-out;
+}
+
+h1.glitch::after {
+    content: attr(data-text); position: absolute; left: 0; top: 0; width: 100%; height: 100%;
+    background: black; clip-path: inset(45% 0 45% 0);
+    animation: scanGlitch 4s infinite linear; opacity: 0.5;
+}
+
+@keyframes scanGlitch {
+    0% { clip-path: inset(80% 0 1% 0); transform: translateX(-5px); }
+    10% { clip-path: inset(10% 0 85% 0); transform: translateX(5px); }
+    20% { clip-path: inset(80% 0 1% 0); transform: translateX(0); }
+    100% { clip-path: inset(80% 0 1% 0); }
+}
+
+@keyframes neonGlow { from { text-shadow: 0 0 10px var(--neon-cyan); } to { text-shadow: 0 0 30px var(--neon-cyan); } }
+
+.menu-section { margin-bottom: 35px; }
+.section-label { font-size: 0.8rem; letter-spacing: 4px; text-transform: uppercase; color: #fff; opacity: 0.5; margin-bottom: 15px; }
+.menu-options { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
+
+.menu-btn { 
+    background: transparent !important; padding: 15px 30px; 
+    font-family: var(--retro-font); font-weight: 700; text-transform: uppercase;
+    letter-spacing: 2px; cursor: pointer; border: 2px solid; 
+    transition: 0.3s all; outline: none; -webkit-tap-highlight-color: transparent;
+    font-size: 0.9rem;
+}
+
+.menu-btn.active { background: rgba(255, 255, 255, 0.05) !important; }
+
+/* Dugmići Boje */
+.menu-btn[data-players="2"] { border-color: rgba(0, 242, 255, 0.2); color: rgba(0, 242, 255, 0.4); }
+.menu-btn[data-players="2"]:hover, .menu-btn[data-players="2"].active { border-color: var(--neon-cyan); color: var(--neon-cyan); box-shadow: 0 0 25px rgba(0, 242, 255, 0.5); }
+.menu-btn[data-players="4"] { border-color: rgba(255, 45, 85, 0.2); color: rgba(255, 45, 85, 0.4); }
+.menu-btn[data-players="4"]:hover, .menu-btn[data-players="4"].active { border-color: var(--neon-magenta); color: var(--neon-magenta); box-shadow: 0 0 25px rgba(255, 45, 85, 0.5); }
+
+.btn-easy { border-color: rgba(0, 255, 127, 0.2); color: rgba(0, 255, 127, 0.4); }
+.btn-easy:hover, .btn-easy.active { border-color: var(--neon-green); color: var(--neon-green); box-shadow: 0 0 25px rgba(0, 255, 127, 0.5); }
+.btn-normal { border-color: rgba(0, 242, 255, 0.2); color: rgba(0, 242, 255, 0.4); }
+.btn-normal:hover, .btn-normal.active { border-color: var(--neon-cyan); color: var(--neon-cyan); box-shadow: 0 0 25px rgba(0, 242, 255, 0.5); }
+.btn-hard { border-color: rgba(255, 45, 85, 0.2); color: rgba(255, 45, 85, 0.4); }
+.btn-hard:hover, .btn-hard.active { border-color: var(--neon-magenta); color: var(--neon-magenta); box-shadow: 0 0 25px rgba(255, 45, 85, 0.5); }
+
+.menu-btn:active { transform: scale(0.95); }
+
+/* --- OVERLAY (FIXED ZA MOBILNI I TABLET) --- */
+#overlay { 
+    position: absolute; inset: 0;
+    background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(15px); 
+    display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 7000;
+    text-align: center;
+    padding: 20px;
+}
+#overlay.hidden { display: none; }
+
+#overlay h1 { 
+    font-size: clamp(2rem, 12vw, 5rem); 
+    letter-spacing: clamp(5px, 3vw, 15px); 
+    font-weight: 700; 
+    margin-bottom: 20px;
+    animation: blink 1s infinite;
+    width: 100%;
+}
+
+#overlay p { 
+    font-size: clamp(0.8rem, 4vw, 1.2rem); 
+    letter-spacing: 2px; 
+    margin: 8px 0; 
+    opacity: 0.8;
+    line-height: 1.5;
+}
+
+#overlay .highlight { color: #fff; text-shadow: 0 0 10px var(--neon-cyan); font-weight: 700; }
+
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+/* --- MOBILNI I TABLET (RESPONZIVNOST) --- */
+@media (max-width: 900px) {
+    canvas { 
+        width: 85vw; 
+        height: 85vw; 
+        /* Smanjen ugao za bolju preglednost na malim/uskim ekranima */
+        transform: rotateX(50deg) scale(1); 
+    }
+
+    #ui { 
+        top: 1%; 
+        width: 95vw; 
+        flex-wrap: wrap; 
+    }
+
+    /* SYSTEM ACTIVE ide skroz na vrh, rezultati ispod njega */
+    .status-box { order: -1; width: 100%; margin-bottom: 5px; font-size: 0.7rem; }
+    
+    #p1-score, #p2-score, #p3-score, #p4-score { 
+        font-size: clamp(1.2rem, 5vw, 2.2rem); 
+        min-width: 40px; 
+    }
+    
+    .score-box { display: flex; align-items: center; gap: 5px; }
+
+    /* Fix za Touch kontrole da ne beže */
+    #touch-controls { height: 100%; width: 100%; }
+}
+
+@media (max-width: 450px) {
+    h1.glitch { font-size: 1.8rem; letter-spacing: 5px; }
+    .menu-btn { padding: 12px 15px; font-size: 0.7rem; }
+    #overlay h1 { font-size: 2.2rem; }
+}
+
+.mobile-only { display: none; }
+
+@media (max-width: 900px) {
+    .mobile-only { display: block; }
+    
+    #touch-controls {
+        position: absolute;
+        inset: 0;
+        z-index: 2000;
+        pointer-events: none;
+    }
+
+    #touch-controls.active { pointer-events: all; }
+
+    .touch-zone {
+        position: absolute;
+        width: 33%; height: 33%;
+    }
+
+    #touch-up { top: 0; left: 33%; width: 34%; }
+    #touch-down { bottom: 0; left: 33%; width: 34%; }
+    #touch-left { top: 0; left: 0; height: 100%; width: 33%; }
+    #touch-right { top: 0; right: 0; height: 100%; width: 33%; }
+}
+
+/* Po defaultu sakrivamo mobilne dugmiće na desktopu */
+.mobile-only { display: none; }
+
+@media (max-width: 900px) {
+    .desktop-only { display: none; }
+    .mobile-only { display: flex; }
+    
+    .overlay-btns {
+        flex-direction: column;
+        gap: 15px;
+        margin-top: 20px;
+        width: 80%;
+    }
+    
+    #overlay h1 { margin-bottom: 30px; }
+}
+
+/* Animacija za uvodno odbrojavanje */
+#game-status {
+    transition: all 0.2s ease;
+}
+
+/* Klasa koju možeš dodati JS-om tokom introa za jači efekat */
+.system-boot {
+    text-shadow: 0 0 20px var(--neon-cyan), 0 0 40px var(--neon-cyan);
+    transform: scale(1.2);
+}
