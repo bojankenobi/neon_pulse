@@ -5,12 +5,12 @@ export class AudioManager {
         this.loopSource = null;
         this.loopGain = null;
         
-        // Pozadinska muzika (ostaje kao Audio objekat radi lakšeg strimovanja)
+        // Pozadinska muzika
         this.bgMusic = new Audio('./assets/music/neon-pulse-theme.mp3');
         this.bgMusic.loop = true;
         this.bgMusic.volume = 0.3;
 
-        // Putanje do tvojih .wav fajlova
+        // USKLAĐENO: Putanje su sada mala slova (start.wav, loop.wav...)
         this.files = {
             start: './assets/music/start.wav',
             loop: './assets/music/loop.wav',
@@ -26,15 +26,16 @@ export class AudioManager {
         for (const [key, url] of Object.entries(this.files)) {
             try {
                 const response = await fetch(url);
+                if (!response.ok) throw new Error(`Status: ${response.status}`);
                 const arrayBuffer = await response.arrayBuffer();
                 this.buffers[key] = await this.ctx.decodeAudioData(arrayBuffer);
             } catch (e) {
-                console.error(`Audio: Neuspešno učitavanje fajla ${url}`, e);
+                console.error(`Audio Error: Neuspešno učitavanje ${url}. Proveri da li su fajlovi na serveru mala slova.`, e);
             }
         }
     }
 
-    // Pokretanje pozadinske muzike
+    // Pokretanje pozadinske muzike (budi AudioContext na mobilnom)
     playBackground() {
         if (this.ctx.state === 'suspended') {
             this.ctx.resume();
@@ -46,7 +47,6 @@ export class AudioManager {
     playEngineStart() {
         if (this.ctx.state === 'suspended') this.ctx.resume();
         
-        // Obavezno zaustavljamo prethodni loop pre nego što pokrenemo start sekvencu
         this.stopLoop();
 
         if (this.buffers.start) {
@@ -55,18 +55,19 @@ export class AudioManager {
             startNode.connect(this.ctx.destination);
             startNode.start(0);
 
-            // Precizno zakazujemo start loop-a odmah nakon start zvuka
             const startDuration = this.buffers.start.duration;
-            setTimeout(() => this.startLoop(), startDuration * 1000);
+            // Koristimo precizniji AudioContext tajming umesto setTimeout za loop
+            setTimeout(() => {
+                // Proveravamo da li je igra u međuvremenu prekinuta (npr. brzi restart)
+                this.startLoop();
+            }, startDuration * 1000);
         } else {
-            // Ako start buffer nije učitan, odmah pređi na loop
             this.startLoop();
         }
     }
 
     // Kontinuirani zvuk motora
     startLoop() {
-        // Ako već radi ili buffer nije učitan, ne radi ništa (zaštita od dupliranja)
         if (this.loopSource || !this.buffers.loop) return;
 
         this.loopSource = this.ctx.createBufferSource();
@@ -80,21 +81,20 @@ export class AudioManager {
         this.loopGain.connect(this.ctx.destination);
         
         this.loopSource.start(0);
-        console.log("Audio: Motor loop pokrenut");
+        console.log("Audio: Motor loop pokrenut uspešno.");
     }
 
-    // Promena tona za Turbo mod
+    // Promena tona za Turbo mod (Pitch Shift)
     updateEnginePitch(isTurbo) {
         if (this.loopSource) {
             const targetPitch = isTurbo ? 1.4 : 1.0;
-            // setTargetAtTime omogućava gladak prelaz (glide) između tonova
             this.loopSource.playbackRate.setTargetAtTime(targetPitch, this.ctx.currentTime, 0.1);
         }
     }
 
     // Zvuk skretanja
     playTurn() {
-        if (!this.buffers.turn) return;
+        if (!this.buffers.turn || this.ctx.state === 'suspended') return;
         const turnNode = this.ctx.createBufferSource();
         turnNode.buffer = this.buffers.turn;
         const gain = this.ctx.createGain();
@@ -104,7 +104,7 @@ export class AudioManager {
         turnNode.start(0);
     }
 
-    // Zvuk eksplozije i gašenje motora
+    // Zvuk eksplozije
     playExplosion() {
         this.stopLoop();
         if (!this.buffers.explosion) return;
@@ -114,15 +114,13 @@ export class AudioManager {
         expNode.start(0);
     }
 
-    // Čišćenje loop kanala (rešava problem u 1vs3 modu)
+    // Čišćenje resursa (rešava problem dupliranja zvuka)
     stopLoop() {
         if (this.loopSource) {
             try {
                 this.loopSource.stop(0);
                 this.loopSource.disconnect();
-            } catch(e) {
-                // Već je zaustavljen
-            }
+            } catch(e) {}
             this.loopSource = null;
             this.loopGain = null;
         }

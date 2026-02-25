@@ -10,11 +10,21 @@ window.addEventListener('load', () => {
     let selectedPlayerCount = 2;
     let selectedSpeed = 80;
 
+    // Funkcija za "buđenje" audia na mobilnim uređajima
+    const unlockAudio = () => {
+        if (game.audio) {
+            game.audio.playBackground(); // Ovo aktivira AudioContext i pušta muziku
+        }
+    };
+
     // Upravljanje dugmićima u meniju
     const menuButtons = document.querySelectorAll('.menu-btn:not(#start-btn)');
 
     menuButtons.forEach(btn => {
         btn.addEventListener('click', () => {
+            // Aktiviramo audio na bilo koji klik u meniju (prevencija za mobilne)
+            unlockAudio();
+
             // Pronalazimo srodnu dugmad u istoj sekciji da im skinemo 'active' klasu
             const parent = btn.parentElement;
             parent.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
@@ -34,11 +44,13 @@ window.addEventListener('load', () => {
 
     // START DUGME - Pokretanje sistema
     startBtn.addEventListener('click', () => {
+        // Ključno za PWA na Samsung S20 Ultra: Otključaj audio pre sakrivanja menija
+        unlockAudio();
+
         // Sakrivamo meni
         menu.classList.add('hidden');
 
         // Pokrećemo igru sa odabranim parametrima
-        // Prosleđujemo broj igrača i brzinu (težinu)
         game.start(selectedPlayerCount, selectedSpeed);
     });
 
@@ -55,7 +67,8 @@ window.addEventListener('load', () => {
     // Opciono: SPACE na overlay-u za restart runde
     window.addEventListener('keydown', (e) => {
         const overlay = document.getElementById('overlay');
-        if (e.code === 'Space' && !overlay.classList.contains('hidden')) {
+        if (e.code === 'Space' && overlay && !overlay.classList.contains('hidden')) {
+            unlockAudio(); // Osiguranje audia i pri restartu
             game.start(selectedPlayerCount, selectedSpeed);
         }
     });
