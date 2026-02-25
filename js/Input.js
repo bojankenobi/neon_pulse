@@ -17,7 +17,7 @@ export class InputHandler {
             }
 
             this.onKeyDown(e);
-        });
+        }, { passive: false });
 
         window.addEventListener('keyup', (e) => {
             // Deaktivacija turba
@@ -59,9 +59,10 @@ export class InputHandler {
         Object.entries(zones).forEach(([id, direction]) => {
             const el = document.getElementById(id);
             if (el) {
+                // TOUCH START - Detekcija skretanja i Turba
                 el.addEventListener('touchstart', (e) => {
-                    // Sprečavamo sistemsko zumiranje/skrolovanje
-                    e.preventDefault();
+                    // KLJUČNO: Sprečava sistemsko zumiranje/skrolovanje na Samsung S20
+                    if (e.cancelable) e.preventDefault();
                     
                     if (controlsContainer) controlsContainer.classList.add('active');
 
@@ -69,7 +70,7 @@ export class InputHandler {
                     if (this.queue.length < 2) {
                         this.queue.push(direction);
                         
-                        // HAPTIČKI FIDBEK: Kratka vibracija (10ms) za svako skretanje
+                        // HAPTIČKI FIDBEK: Kratka vibracija za svako skretanje
                         if (navigator.vibrate) {
                             navigator.vibrate(15);
                         }
@@ -79,20 +80,31 @@ export class InputHandler {
                     const now = performance.now();
                     const timespan = now - this.lastTouchTime;
                     
-                    if (timespan < 300) { 
+                    if (timespan < 300 && timespan > 0) { 
                         this.isTurbo = true;
-                        // Jača vibracija za aktivaciju turba (30ms)
+                        // Jača vibracija za aktivaciju turba
                         if (navigator.vibrate) {
                             navigator.vibrate(40);
                         }
-                        // Automatsko gašenje turba na mobilnom nakon 1.5s
+                        // Automatsko gašenje turba na mobilnom nakon 1.5s (da ne troši bateriju/energiju)
                         setTimeout(() => this.isTurbo = false, 1500);
                     }
                     
                     this.lastTouchTime = now;
                 }, { passive: false });
+
+                // TOUCH END - Sprečava "ghost" klikove i čisti UI
+                el.addEventListener('touchend', (e) => {
+                    if (e.cancelable) e.preventDefault();
+                    if (controlsContainer) controlsContainer.classList.remove('active');
+                }, { passive: false });
             }
         });
+
+        // Globalno sprečavanje gestova na celom ekranu da igra ne "beži"
+        document.addEventListener('touchmove', (e) => {
+            if (e.cancelable) e.preventDefault();
+        }, { passive: false });
     }
 
     getNext() {

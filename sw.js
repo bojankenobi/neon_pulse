@@ -1,4 +1,4 @@
-const CACHE_NAME = 'neon-pulse-v2'; // Povećali smo verziju da nateramo brauzer na osvežavanje
+const CACHE_NAME = 'neon-pulse-v2'; 
 const ASSETS = [
   './',
   './index.html',
@@ -18,7 +18,14 @@ const ASSETS = [
 
 self.addEventListener('install', (e) => {
   e.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
+    caches.open(CACHE_NAME).then(cache => {
+      // Koristimo mapiranje da bismo u konzoli videli ako neki fajl fali
+      return Promise.all(
+        ASSETS.map(url => {
+          return cache.add(url).catch(err => console.error('PWA Cache Error:', url));
+        })
+      );
+    })
   );
 });
 
